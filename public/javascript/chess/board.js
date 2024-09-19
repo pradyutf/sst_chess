@@ -3,6 +3,7 @@ var Board = function(config){
     this.$el = document.getElementById(this.root_id);
     this.generateBoardDom();
     this.addListeners();
+    this.turn = 0;
 }
 
 Board.prototype.addListeners = function(){
