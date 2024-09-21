@@ -58,17 +58,19 @@ Board.prototype.clearSelection = function(){
     });
 };
 
-Board.prototype.boardClicked = function(event){    
+Board.prototype.boardClicked = function(event){ 
+
     this.clearSelection();    
     const clickedCell = this.getClickedBlock(event);
-    const selectedPiece = this.getPieceAt(clickedCell)
-    if(selectedPiece){
-        //Add 'selected' class to the clicked piece    
+    
+    const selectedPiece = this.getPieceAt(clickedCell);
+    if(selectedPiece && this.selectedPiece == null){
+        //Add 'selected' class to the clicked piece   
         this.selectPiece(event.target, selectedPiece);
     }else{
         //update position of the selected piece to new position
         if(this.selectedPiece){
-            this.selectedPiece.moveTo(clickedCell);        
+            this.selectedPiece.moveTo(clickedCell,this);        
         }                
     }    
 }

@@ -4,7 +4,7 @@ var Pawn = function(config){
 };
 
 Pawn.prototype = new Piece({});
-Pawn.prototype.moveTo = function(targetPosition){
+Pawn.prototype.moveTo = function(targetPosition,Board){
     console.log(this);
     console.log(targetPosition)
 
@@ -18,8 +18,9 @@ Pawn.prototype.moveTo = function(targetPosition){
         console.log("Invalid Move");
     }
     this.render();
+    let pieceToKill = Board.getPieceAtPosition(targetPosition);
+    if(pieceToKill && pieceToKill.color !== this.color){
+        pieceToKill.kill();
+    }
 }
 
-Pawn.prototype.kill = function(){
-
-}

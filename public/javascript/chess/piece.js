@@ -44,4 +44,7 @@ Piece.prototype.render = function(){
 
 Piece.prototype.kill = function(targetPiece){
     console.log("Method not implemeted by: " + typeof(this));
+    if (this.$el && this.$el.parentNode) {
+        this.$el.parentNode.removeChild(this.$el);
+    }
 }
