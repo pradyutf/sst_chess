@@ -1,6 +1,7 @@
 var Piece = function(config){
     this.position = config.position;
     this.color = config.color;
+    this.board = config.board;
     if(this.position){
         this.render();        
     }    
@@ -43,8 +44,15 @@ Piece.prototype.render = function(){
 }
 
 Piece.prototype.kill = function(targetPiece){
-    console.log("Method not implemeted by: " + typeof(this));
-    if (this.$el && this.$el.parentNode) {
-        this.$el.parentNode.removeChild(this.$el);
+    if (targetPiece && targetPiece.board) {
+        targetPiece.board.removePiece(targetPiece);
+    } else {
+        console.warn('Invalid target piece for kill operation');
     }
 }
+
+Piece.prototype.updatePosition = function(targetPosition) {
+    this.position = targetPosition.col + targetPosition.row;
+    this.render();
+}
+

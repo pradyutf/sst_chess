@@ -58,78 +58,144 @@ Board.prototype.clearSelection = function(){
     });
 };
 
-Board.prototype.boardClicked = function(event){ 
+// Board.prototype.boardClicked = function(event){ 
 
+//     this.clearSelection();    
+//     const clickedCell = this.getClickedBlock(event);
+
+//     const selectedPiece = this.getPieceAt(clickedCell);
+
+//     const currentColor = this.turn==0? "white" : "black";
+//     if(selectedPiece && currentColor === selectedPiece.color ){
+//         //Add 'selected' class to the clicked piece   
+//         this.selectPiece(event.target, selectedPiece);
+
+//     }
+//     else if (selectedPiece && !this.selectedPiece && this.currentColor !== selectedPiece.color){
+//         this.deselectPiece();
+//         alert("This isnt your turn");
+//         return;
+//     }
+//     else if(selectedPiece){
+//         this.selectedPiece.moveTo(clickedCell);
+//         this.clearSelection;
+//     }
+//     else{
+//         //update position of the selected piece to new position
+//         if(this.selectedPiece){
+//             this.selectedPiece.moveTo(clickedCell,this);        
+//         }                
+//     }    
+// }
+
+// Board.prototype.getPieceAt = function(cell){
+//     if (!cell || !cell.row || !cell.col) {
+//         return false;
+//     }
+
+//     const position = cell.col + cell.row;
+
+//     // Check white pieces
+//     for (let pieceType in this.whitePieces) {
+//         if (Array.isArray(this.whitePieces[pieceType])) {
+//             // For arrays (pawns, bishops, knights, rooks)
+//             for (let piece of this.whitePieces[pieceType]) {
+//                 if (piece.position === position) {
+//                     return piece;
+//                 }
+//             }
+//         } else {
+//             // For single pieces (king, queen)
+//             if (this.whitePieces[pieceType].position === position) {
+//                 return this.whitePieces[pieceType];
+//             }
+//         }
+//     }
+
+//     // Check black pieces
+//     for (let pieceType in this.blackPieces) {
+//         if (Array.isArray(this.blackPieces[pieceType])) {
+//             // For arrays (pawns, bishops, knights, rooks)
+//             for (let piece of this.blackPieces[pieceType]) {
+//                 if (piece.position === position) {
+//                     return piece;
+//                 }
+//             }
+//         } else {
+//             // For single pieces (king, queen)
+//             if (this.blackPieces[pieceType].position === position) {
+//                 return this.blackPieces[pieceType];
+//             }
+//         }
+//     }
+//     return false;
+// }
+
+Board.prototype.boardClicked = function(event) {
     this.clearSelection();    
     const clickedCell = this.getClickedBlock(event);
 
+    if (!clickedCell) return;
+
     const selectedPiece = this.getPieceAt(clickedCell);
+    const currentColor = this.turn == 0 ? "white" : "black";
 
-    const currentColor = this.turn==0? "white" : "black";
-    if(selectedPiece && currentColor === selectedPiece.color ){
-        //Add 'selected' class to the clicked piece   
+    if (selectedPiece && currentColor === selectedPiece.color) {
+        // Select the clicked piece
         this.selectPiece(event.target, selectedPiece);
+    } else if (this.selectedPiece) {
+        // Attempt to move the selected piece
+        if (this.selectedPiece.moveTo(clickedCell)) {
+            this.selectedPiece = null;
+        }
+    } else {
+        console.log("No piece selected or invalid selection");
+    }
+};
 
-    }
-    else if (selectedPiece && !this.selectedPiece && this.currentColor !== selectedPiece.color){
-        this.deselectPiece();
-        alert("This isnt your turn");
-        return;
-    }
-    else if(selectedPiece){
-        this.selectedPiece.moveTo(clickedCell);
-        this.clearSelection;
-    }
-    else{
-        //update position of the selected piece to new position
-        if(this.selectedPiece){
-            this.selectedPiece.moveTo(clickedCell,this);        
-        }                
-    }    
-}
-
-Board.prototype.getPieceAt = function(cell){
+Board.prototype.getPieceAt = function(cell) {
     if (!cell || !cell.row || !cell.col) {
-        return false;
+        return null;
     }
 
     const position = cell.col + cell.row;
 
-    // Check white pieces
-    for (let pieceType in this.whitePieces) {
-        if (Array.isArray(this.whitePieces[pieceType])) {
-            // For arrays (pawns, bishops, knights, rooks)
-            for (let piece of this.whitePieces[pieceType]) {
-                if (piece.position === position) {
-                    return piece;
+    const allPieces = [...Object.values(this.whitePieces), ...Object.values(this.blackPieces)];
+    for (let piece of allPieces) {
+        if (Array.isArray(piece)) {
+            for (let p of piece) {
+                if (p.position === position) {
+                    return p;
                 }
             }
-        } else {
-            // For single pieces (king, queen)
-            if (this.whitePieces[pieceType].position === position) {
-                return this.whitePieces[pieceType];
+        } else if (piece.position === position) {
+            return piece;
+        }
+    }
+    return null;
+};
+
+Board.prototype.removePiece = function(piece) {
+    const pieces = piece.color === 'white' ? this.whitePieces : this.blackPieces;
+    const pieceType = piece.type + 's';
+
+    if (pieceType in pieces) {
+        if (Array.isArray(pieces[pieceType])) {
+            const index = pieces[pieceType].indexOf(piece);
+            if (index !== -1) {
+                pieces[pieceType].splice(index, 1);
             }
+        } else {
+            delete pieces[pieceType];
         }
     }
 
-    // Check black pieces
-    for (let pieceType in this.blackPieces) {
-        if (Array.isArray(this.blackPieces[pieceType])) {
-            // For arrays (pawns, bishops, knights, rooks)
-            for (let piece of this.blackPieces[pieceType]) {
-                if (piece.position === position) {
-                    return piece;
-                }
-            }
-        } else {
-            // For single pieces (king, queen)
-            if (this.blackPieces[pieceType].position === position) {
-                return this.blackPieces[pieceType];
-            }
-        }
+    if (piece.$el && piece.$el.parentNode) {
+        piece.$el.parentNode.removeChild(piece.$el);
     }
-    return false;
-}
+};
+
+
 
 Board.prototype.selectPiece = function(clickedElement, selectedPiece) {
     if (clickedElement.classList.contains('piece')) {
@@ -223,6 +289,7 @@ Board.prototype.deselectPiece = function(){
 }
 
 Board.prototype.changeTurns = function(){
-    this.currentColor = this.currentColor === 0? 1: 0;
+    this.turn = this.turn === 0? 1: 0;
     this.selectedPiece = false;
 }
+
